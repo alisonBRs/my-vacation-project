@@ -115,18 +115,18 @@ export const Chats = ({
         chatId,
         message: textMessage,
       });
-      const socket = io("http://localhost:3030");
+      // const socket = io("http://localhost:3030");
 
-      socket.emit("sendMessage", {
-        message: textMessage,
-        fromMe: chatId,
-        toChat: "",
-      });
+      // socket.emit("sendMessage", {
+      //   message: textMessage,
+      //   fromMe: chatId,
+      //   toChat: "",
+      // });
 
-      socket.on("receiveMessage", (message) => {
-        console.log("Nova mensagem recebida:", message);
-        // Exiba a mensagem no chat, por exemplo:
-      });
+      // socket.on("receiveMessage", (message) => {
+      //   console.log("Nova mensagem recebida:", message);
+      //   // Exiba a mensagem no chat, por exemplo:
+      // });
     }
   };
 
