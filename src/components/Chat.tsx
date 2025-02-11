@@ -129,18 +129,15 @@ export const Chats = ({
       });
     }
   };
-  useEffect(() => {
-    const allChats = chatListCopy.map((chat: any) => {
-      return { ...chat, openned: setToggleAllChats };
-    });
-
-    setChatListCopy(allChats);
-  }, [setToggleAllChats]);
 
   useEffect(() => {
     if (!isLoading) {
       const formatedChats = chats?.map((chat: any, index: number) => {
-        return { ...chat, name: chat?.name || `chat ${index + 1}` };
+        return {
+          ...chat,
+          name: chat?.name || `chat ${index + 1}`,
+          openned: setToggleAllChats,
+        };
       });
 
       const formatedMessages = chats?.map((chat: chatType) => {
@@ -154,7 +151,8 @@ export const Chats = ({
       });
       setChatListCopy(formatedChats);
     }
-  }, [chats, isLoading]);
+  }, [chats, isLoading, setToggleAllChats]);
+
   return (
     <Flex
       justifyContent={"flex-end"}
