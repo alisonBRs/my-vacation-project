@@ -11,6 +11,7 @@ import { useDeleteChat } from "@/app/hooks/useDeleteChat";
 import { useSendMessage } from "@/app/hooks/useSendMessage";
 import { io } from "socket.io-client";
 
+const socket = io("http://localhost:3080");
 export interface messageType {
   id?: string;
   chatId?: string;
@@ -61,10 +62,12 @@ export const Chats = ({
       },
     ]);
   };
+
   const handleOpenChat = (data: chatType) => {
     const selectedChat = chatListCopy.find(
       (chat: chatType) => chat.id === data.id
     );
+
     const chatAlreadyOpen = chatListCopy.find(
       (chat: chatType) => chat.id === data.id && chat.openned
     );
@@ -115,18 +118,13 @@ export const Chats = ({
         chatId,
         message: textMessage,
       });
-      // const socket = io("http://localhost:3030");
 
-      // socket.emit("sendMessage", {
-      //   message: textMessage,
-      //   fromMe: chatId,
-      //   toChat: "",
-      // });
+      const messageObj = {
+        chatId,
+        message: textMessage,
+      };
 
-      // socket.on("receiveMessage", (message) => {
-      //   console.log("Nova mensagem recebida:", message);
-      //   // Exiba a mensagem no chat, por exemplo:
-      // });
+      socket.emit("sendMessage", messageObj);
     }
   };
 
@@ -152,6 +150,16 @@ export const Chats = ({
       setChatListCopy(formatedChats);
     }
   }, [chats, isLoading, setToggleAllChats]);
+
+  useEffect(() => {
+    socket.on("receiveMessage", (message) => {
+      console.log("Nova mensagem recebida:", message);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   return (
     <Flex
