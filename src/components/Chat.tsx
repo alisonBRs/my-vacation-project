@@ -6,7 +6,7 @@ import { IoMdAddCircleOutline } from "react-icons/io";
 import { v4 } from "uuid";
 import { VscSend } from "react-icons/vsc";
 import { useGetChats } from "@/app/hooks/useGetChats";
-import { useAddChat } from "@/app/hooks/usAddChat";
+import { useAddChat } from "@/app/hooks/useAddChat";
 import { useDeleteChat } from "@/app/hooks/useDeleteChat";
 import { useSendMessage } from "@/app/hooks/useSendMessage";
 import { io } from "socket.io-client";
