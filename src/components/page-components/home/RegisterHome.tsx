@@ -5,40 +5,46 @@ import {
   Flex,
   Heading,
   Input,
-  Spinner,
+  Link,
   Text,
 } from "@chakra-ui/react";
+
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
-
+import { toast } from "react-toastify";
+import { useForm } from "react-hook-form";
+import {
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+} from "@chakra-ui/form-control";
+interface dataType {
+  email: string;
+  password: string;
+}
 export default function RegisterHome() {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
-  interface dataType {
-    email: string;
-    password: string;
-  }
+  const [registerPage, setRegisterPage] = useState(false);
+
+  const {
+    control,
+    formState: { errors },
+    register,
+    handleSubmit: submit,
+    getValues,
+    reset,
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+      name: "",
+    },
+  });
+
   const router = useRouter();
   const handleSubmit = (data: dataType) => {
-    if (
-      data.email === "alison.teste@teste.com" &&
-      data.password === "teste123"
-    ) {
-      return router.push("/chats");
-    }
-    toast.error("Email ou senha incorreto", {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "light",
-      type: "error",
-      style: { background: "#fbc5c5" },
-    });
+    console.log(getValues());
   };
   return (
     <Flex h={"100vh"} w={"100vw"} justify={"center"} alignItems={"center"}>
@@ -50,39 +56,124 @@ export default function RegisterHome() {
         boxShadow={"lg"}
         flexDirection={"column"}
         alignItems={"center"}
+        justifyContent={"space-between"}
       >
-        <Heading textAlign={"center"} mt={2}>
-          Login
-        </Heading>
+        {!registerPage ? (
+          <Flex flexDir={"column"} gap={2} alignItems={"center"}>
+            <Heading textAlign={"center"} mt={2}>
+              Login
+            </Heading>
 
-        <Box w={"200px"} mt={8}>
-          <label>
-            <Text>Email:</Text>
-            <Input
-              value={email}
-              type="text"
-              placeholder="Seu email..."
-              pl={2}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </label>
+            <Box w={"200px"} mt={8}>
+              <label>
+                <Text>Email:</Text>
+                <Input
+                  value={email}
+                  type="text"
+                  placeholder="Seu email..."
+                  pl={2}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </label>
 
-          <label>
-            <Text>Password:</Text>
-            <Input
-              value={pass}
-              type="password"
-              placeholder="Sua senha..."
-              pl={2}
-              onChange={(e) => setPass(e.target.value)}
-            />
-          </label>
-        </Box>
-        <Box>
-          <Button onClick={() => handleSubmit({ email, password: pass })}>
-            Logar
+              <label>
+                <Text>Password:</Text>
+                <Input
+                  value={pass}
+                  type="password"
+                  placeholder="Sua senha..."
+                  pl={2}
+                  onChange={(e) => setPass(e.target.value)}
+                />
+              </label>
+            </Box>
+
+            <Button
+              colorScheme={"green"}
+              bg={"green.300"}
+              px={"10px"}
+              onClick={() => handleSubmit({ email, password: pass })}
+            >
+              Logar
+            </Button>
+          </Flex>
+        ) : (
+          <Flex flexDir={"column"} gap={2} alignItems={"center"}>
+            <Heading textAlign={"center"} mt={2}>
+              Registro
+            </Heading>
+
+            <Box w={"200px"} mt={8}>
+              <FormControl isInvalid={!!errors?.name}>
+                <FormLabel>Nome</FormLabel>
+                <Input
+                  borderColor={errors?.name?.message ? "red" : ""}
+                  autoFocus
+                  bg={"white"}
+                  autoComplete={"off"}
+                  {...register("name", {
+                    required: "Campo obrigatório",
+                  })}
+                />
+                <FormErrorMessage color={"red"}>
+                  {errors?.name?.message as string}
+                </FormErrorMessage>
+
+                <FormLabel>Email</FormLabel>
+                <Input
+                  borderColor={errors?.name?.message ? "red" : ""}
+                  autoFocus
+                  bg={"white"}
+                  autoComplete={"off"}
+                  {...register("email", {
+                    required: "Campo obrigatório",
+                  })}
+                />
+                <FormErrorMessage color={"red"}>
+                  {errors?.email?.message as string}
+                </FormErrorMessage>
+
+                <FormLabel>Senha</FormLabel>
+                <Input
+                  borderColor={errors?.name?.message ? "red" : ""}
+                  autoFocus
+                  bg={"white"}
+                  type="password"
+                  autoComplete={"off"}
+                  {...register("password", {
+                    required: "Campo obrigatório",
+                  })}
+                />
+                <FormErrorMessage color={"red"}>
+                  {errors?.password?.message as string}
+                </FormErrorMessage>
+              </FormControl>
+            </Box>
+
+            <Button
+              colorScheme={"green"}
+              bg={"green.300"}
+              px={"10px"}
+              onClick={() => submit(handleSubmit)()}
+            >
+              Registrar
+            </Button>
+          </Flex>
+        )}
+
+        <Flex gap={2} alignItems={"center"}>
+          <Text>ou</Text>
+          <Button
+            as={Link}
+            color={"purple"}
+            onClick={() => {
+              setRegisterPage(!registerPage);
+              reset();
+            }}
+          >
+            {registerPage ? "logar" : "registre-se"}
           </Button>
-        </Box>
+        </Flex>
       </Flex>
     </Flex>
   );
