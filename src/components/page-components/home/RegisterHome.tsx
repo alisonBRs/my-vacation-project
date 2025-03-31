@@ -9,7 +9,6 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
@@ -18,14 +17,13 @@ import {
   FormErrorMessage,
   FormLabel,
 } from "@chakra-ui/form-control";
-interface dataType {
-  email: string;
-  password: string;
-}
+import { useCreateUser } from "@/app/hooks/useCreateUser";
+import { useLogin } from "@/app/hooks/useLogin";
+
 export default function RegisterHome() {
-  const [email, setEmail] = useState("");
-  const [pass, setPass] = useState("");
   const [registerPage, setRegisterPage] = useState(false);
+  const { registerUser, isLoading: isLoadingRegisterUser } = useCreateUser();
+  const { login, isLoading: isLoadingLogin } = useLogin();
 
   const {
     control,
@@ -42,9 +40,27 @@ export default function RegisterHome() {
     },
   });
 
-  const router = useRouter();
-  const handleSubmit = (data: dataType) => {
-    console.log(getValues());
+  const handleSubmit = async () => {
+    const data = getValues();
+    const result = await registerUser(data);
+    if (result.data.error === false) {
+      toast.success("Usuário criado com sucesso!");
+      setRegisterPage(false);
+      reset();
+    }
+
+    console.log("resultado", result);
+  };
+
+  const handleLoginSubmit = async () => {
+    const { email, password } = getValues();
+    const result = await login({ email, password });
+    console.log("result", result);
+
+    if (result.status === 200 && result.data) {
+      localStorage.setItem("token", `Bearer-${result.data.token}`);
+      window.location.href = "http://localhost:3000/chats";
+    }
   };
   return (
     <Flex h={"100vh"} w={"100vw"} justify={"center"} alignItems={"center"}>
@@ -64,35 +80,42 @@ export default function RegisterHome() {
               Login
             </Heading>
 
-            <Box w={"200px"} mt={8}>
-              <label>
-                <Text>Email:</Text>
-                <Input
-                  value={email}
-                  type="text"
-                  placeholder="Seu email..."
-                  pl={2}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </label>
+            <FormControl isInvalid={!!errors?.name}>
+              <FormLabel>Email</FormLabel>
+              <Input
+                borderColor={errors?.name?.message ? "red" : ""}
+                autoFocus
+                bg={"white"}
+                autoComplete={"off"}
+                {...register("email", {
+                  required: "Campo obrigatório",
+                })}
+              />
+              <FormErrorMessage color={"red"}>
+                {errors?.email?.message as string}
+              </FormErrorMessage>
 
-              <label>
-                <Text>Password:</Text>
-                <Input
-                  value={pass}
-                  type="password"
-                  placeholder="Sua senha..."
-                  pl={2}
-                  onChange={(e) => setPass(e.target.value)}
-                />
-              </label>
-            </Box>
+              <FormLabel>Senha</FormLabel>
+              <Input
+                borderColor={errors?.name?.message ? "red" : ""}
+                autoFocus
+                bg={"white"}
+                type="password"
+                autoComplete={"off"}
+                {...register("password", {
+                  required: "Campo obrigatório",
+                })}
+              />
+              <FormErrorMessage color={"red"}>
+                {errors?.password?.message as string}
+              </FormErrorMessage>
+            </FormControl>
 
             <Button
               colorScheme={"green"}
               bg={"green.300"}
               px={"10px"}
-              onClick={() => handleSubmit({ email, password: pass })}
+              onClick={() => handleLoginSubmit()}
             >
               Logar
             </Button>
