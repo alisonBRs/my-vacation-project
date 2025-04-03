@@ -10,6 +10,7 @@ import { useAddChat } from "@/app/hooks/useAddChat";
 import { useDeleteChat } from "@/app/hooks/useDeleteChat";
 import { useSendMessage } from "@/app/hooks/useSendMessage";
 import { io } from "socket.io-client";
+import { useGetProfile } from "@/app/hooks/useGetProfile";
 
 const socket = io("http://localhost:3080");
 export interface messageType {
@@ -22,6 +23,7 @@ export interface chatType {
   name: string;
   id: string;
   openned: boolean;
+  userId: string;
   message: messageType[];
 }
 export const Chats = ({
@@ -33,9 +35,12 @@ export const Chats = ({
     chatId: string;
     message: string[];
   }
-  const { data: chats, isLoading } = useGetChats();
+
   const { mutate: deleteChat } = useDeleteChat();
   const { mutate: successSendMessage } = useSendMessage();
+  const { data: allChats, isLoading: isLoadingChats } = useGetChats();
+
+  const { profile, isLoading } = useGetProfile();
 
   const [chatListCopy, setChatListCopy] = useState<chatType[]>([]);
   const [sendTextMessage, setSendTextMessage] = useState("");
@@ -95,17 +100,20 @@ export const Chats = ({
       setChatListCopy(updatedToggleChat);
     }
   };
+
   const sendMessage = ({
     chatId,
     textMessage,
+    userId,
   }: {
     chatId: string;
     textMessage: string;
+    userId: string;
   }) => {
     const chatAlreadyExist = sendChatMessage.find(
       (data) => data.chatId === chatId
     );
-    const chatAwaysOpen = chats.map((chat: chatType) => {
+    const chatAwaysOpen = profile?.data.chats.map((chat: chatType) => {
       if (chat.id === chatId) {
         return { ...chat, openned: true };
       }
@@ -130,26 +138,24 @@ export const Chats = ({
 
   useEffect(() => {
     if (!isLoading) {
-      const formatedChats = chats?.map((chat: any, index: number) => {
-        return {
-          ...chat,
-          name: chat?.name || `chat ${index + 1}`,
-          openned: setToggleAllChats,
-        };
-      });
-
-      const formatedMessages = chats?.map((chat: chatType) => {
-        if (chat.message?.length === 0) {
+      const formatedChats = profile?.data.chats?.map(
+        (chat: any, index: number) => {
           return {
-            chatId: chat.id,
-            message: chat.message,
+            ...chat,
+            name: chat?.name || `chat ${index + 1}`,
+            openned: setToggleAllChats,
+            message: profile?.data.messages.filter(
+              (msg: any) => msg.chatId === chat.id
+            ),
           };
         }
-        return { ...chat.message?.[0] };
-      });
+      );
+
+      console.log(profile, "entrei no effect");
+
       setChatListCopy(formatedChats);
     }
-  }, [chats, isLoading, setToggleAllChats]);
+  }, [profile, isLoading, setToggleAllChats]);
 
   useEffect(() => {
     socket.on("receiveMessage", (message) => {
@@ -221,8 +227,8 @@ export const Chats = ({
                   flexDir={"column"}
                   gap={2}
                 >
-                  {chatBox.message.length
-                    ? chatBox.message.map((data, index) => (
+                  {chatBox?.message?.length
+                    ? chatBox?.message?.map((data, index) => (
                         <Text
                           key={`message-${data.chatId}-${index}`}
                           bg={"green.300"}
@@ -246,6 +252,7 @@ export const Chats = ({
                         sendMessage({
                           chatId: chat.id,
                           textMessage: sendTextMessage,
+                          userId: chat.userId,
                         });
                         const clearFocusedInput = message.map((msg) => {
                           if (msg.chatId === chatBox.id) {
@@ -269,6 +276,7 @@ export const Chats = ({
                       sendMessage({
                         chatId: chat.id,
                         textMessage: sendTextMessage,
+                        userId: chat.userId,
                       });
                       const clearFocusedInput = message.map((msg) => {
                         if (msg.chatId === chatBox.id) {

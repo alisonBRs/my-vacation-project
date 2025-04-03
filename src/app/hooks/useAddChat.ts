@@ -2,8 +2,9 @@ import { useMutation, useQueryClient } from "react-query";
 import { fetchAxios } from "../setup axios/axios";
 import { v4 } from "uuid";
 
-function addChat() {
-  const data = fetchAxios.post("/criaChat");
+async function addChat() {
+  const data = await fetchAxios.post("/criaChat");
+
   return data;
 }
 
@@ -13,18 +14,32 @@ export function useAddChat() {
     mutationKey: ["create-chat"],
     mutationFn: addChat,
     onMutate: () => {
-      const newChat = {
-        id: `fakeId-${v4()}`,
-        message: [],
-      };
-      queryClient.setQueryData(["chats"], (prev: any) => [...prev, newChat]);
+      queryClient.setQueryData(["chats"], (prev: any) => {
+        const newChat = {
+          id: `fakeId-${v4()}`,
+          message: [],
+          userId: `fakeUserId-${v4()}`,
+          name: `Chat #${prev.length + 1}`,
+        };
+        if (prev) {
+          return [...prev, newChat];
+        }
+
+        return [newChat];
+      });
     },
     onSuccess: ({ data }) => {
+      console.log(data, "data");
       queryClient.setQueryData(["chats"], (prev: any) => {
         const updatedChat = prev.map((chat: any) => {
-          if (chat.id.startsWith("fakeId")) {
+          if (
+            chat.id.startsWith("fakeId") ||
+            chat.userId.startsWith("fakeUserId")
+          ) {
             return {
+              ...chat,
               id: data.result.id,
+              userId: data.result.userId,
               message: [],
             };
           }
@@ -33,6 +48,9 @@ export function useAddChat() {
 
         return updatedChat;
       });
+    },
+    onError: () => {
+      queryClient.invalidateQueries(["chats"]);
     },
   });
 

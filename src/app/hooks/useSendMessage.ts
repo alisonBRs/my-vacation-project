@@ -18,6 +18,7 @@ export function useSendMessage() {
     mutationFn: sendMessage,
     onMutate: ({ message, chatId }) => {
       queryClient.setQueryData(["chats"], (prev: any) => {
+        console.log("prev", prev);
         const updatedChatMessage = prev.map((chat: chatType) => {
           if (chat.id === chatId) {
             const messageCopy = chat?.message.length ? [...chat.message] : [];
@@ -26,6 +27,7 @@ export function useSendMessage() {
               ...chat,
               message: messageCopy,
               id: `fakeId-${v4()}`,
+              userId: `fakeUserId-${v4()}`,
             };
           }
           return chat;
@@ -36,14 +38,25 @@ export function useSendMessage() {
     onSuccess: ({ data }) => {
       queryClient.setQueryData(["chats"], (prev: any) => {
         const updatedChat = prev.map((chat: chatType) => {
-          if (chat?.id?.startsWith("fakeId")) {
-            return { ...chat, id: data.result.id, openned: true };
+          if (
+            chat?.id?.startsWith("fakeId") ||
+            chat?.userId?.startsWith("fakeUserId")
+          ) {
+            return {
+              ...chat,
+              id: data.result.id,
+              userId: data.result.userId,
+              openned: true,
+            };
           }
           return chat;
         });
 
         return updatedChat;
       });
+    },
+    onError: () => {
+      queryClient.invalidateQueries(["chats"]);
     },
   });
 

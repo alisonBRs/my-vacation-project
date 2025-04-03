@@ -55,10 +55,9 @@ export default function RegisterHome() {
   const handleLoginSubmit = async () => {
     const { email, password } = getValues();
     const result = await login({ email, password });
-    console.log("result", result);
 
     if (result.status === 200 && result.data) {
-      localStorage.setItem("token", `Bearer-${result.data.token}`);
+      localStorage.setItem("token", `Bearer ${result.data.token}`);
       window.location.href = "http://localhost:3000/chats";
     }
   };
