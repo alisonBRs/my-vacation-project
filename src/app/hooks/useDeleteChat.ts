@@ -14,9 +14,11 @@ export function useDeleteChat() {
     mutationKey: ["create-chat"],
     mutationFn: deleteChat,
     onMutate: ({ chatId }) => {
-      queryClient.setQueryData(["chats"], (prev: any) => {
-        const updatedChat = prev.filter((chat: chatType) => chat.id !== chatId);
-        return updatedChat;
+      queryClient.setQueryData(["profile"], (prev: any) => {
+        const updatedChat = prev.chats.filter(
+          (chat: chatType) => chat.id !== chatId
+        );
+        return { ...prev, chats: updatedChat };
       });
     },
   });
