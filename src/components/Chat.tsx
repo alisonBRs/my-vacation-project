@@ -141,15 +141,13 @@ export const Chats = ({
       const formatedChats = profile?.chats?.map((chat: any, index: number) => {
         return {
           ...chat,
-          name: chat?.name || `chat ${index + 1}`,
+          name: chat?.name || `Chat #${index + 1}`,
           openned: setToggleAllChats,
           message: profile?.messages.filter(
             (msg: any) => msg.chatId === chat.id
           ),
         };
       });
-
-      console.log(profile, "entrei no effect");
 
       setChatListCopy(formatedChats);
     }
@@ -191,7 +189,10 @@ export const Chats = ({
             <CloseButton
               size={"2xs"}
               _hover={{ bg: "red.300" }}
-              onClick={() => handleCloseChat(chat)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCloseChat(chat);
+              }}
             />
           </Flex>
 

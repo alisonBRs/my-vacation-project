@@ -1,17 +1,20 @@
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { fetchAxios } from "../setup axios/axios";
 
 const getProfile = async () => {
-  const result = await fetchAxios.get(`/getProfile/`);
-
+  const result = await fetchAxios.get(`/getProfile`);
   return result.data;
 };
 
 export const useGetProfile = () => {
-  const query = useQuery({
-    queryKey: ["profile"],
-    queryFn: getProfile,
+  const mutation = useMutation({
+    mutationKey: ["profile"],
+    mutationFn: getProfile,
   });
-  const { data, ...useQueryData } = query;
-  return { ...useQueryData, profile: query.data };
+  const { data, mutate, ...useQueryData } = mutation;
+  return {
+    ...useQueryData,
+    profile: mutation.data,
+    resolveProfile: mutation.mutate,
+  };
 };
