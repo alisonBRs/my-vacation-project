@@ -138,18 +138,16 @@ export const Chats = ({
 
   useEffect(() => {
     if (!isLoading) {
-      const formatedChats = profile?.data.chats?.map(
-        (chat: any, index: number) => {
-          return {
-            ...chat,
-            name: chat?.name || `chat ${index + 1}`,
-            openned: setToggleAllChats,
-            message: profile?.data.messages.filter(
-              (msg: any) => msg.chatId === chat.id
-            ),
-          };
-        }
-      );
+      const formatedChats = profile?.chats?.map((chat: any, index: number) => {
+        return {
+          ...chat,
+          name: chat?.name || `chat ${index + 1}`,
+          openned: setToggleAllChats,
+          message: profile?.messages.filter(
+            (msg: any) => msg.chatId === chat.id
+          ),
+        };
+      });
 
       console.log(profile, "entrei no effect");
 
