@@ -2,9 +2,9 @@ import { useQuery } from "react-query";
 import { fetchAxios } from "../setup axios/axios";
 
 const getProfile = async () => {
-  const data = fetchAxios.get(`/getProfile/`);
+  const result = await fetchAxios.get(`/getProfile/`);
 
-  return data;
+  return result.data;
 };
 
 export const useGetProfile = () => {
