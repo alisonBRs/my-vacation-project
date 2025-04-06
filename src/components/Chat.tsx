@@ -146,7 +146,17 @@ export const Chats = ({
         };
       });
 
+      const formatedChatMessage = profile?.chats?.map((msg: any) => {
+        return {
+          ...msg,
+          messageInput:
+            message.find((msgSetted) => msg.id === msgSetted.id)
+              ?.messageInput || "",
+        };
+      });
+
       setChatListCopy(formatedChats);
+      setMessage(formatedChatMessage);
     }
   }, [profile, isLoading, setToggleAllChats]);
 
@@ -197,12 +207,8 @@ export const Chats = ({
             if (!chatBox.openned) {
               return;
             }
-            const focusedInput = message.find(
-              (msg) => msg.chatId === chatBox.id
-            );
-            const focusedChat = chatListCopy.find(
-              (chat) => chat.id === chatBox.id
-            );
+            let focusedInput = message.find((msg) => msg.id === chatBox.id);
+
             return (
               <Flex
                 key={`chat-input-${chatBox.id}`}
@@ -242,16 +248,26 @@ export const Chats = ({
                     value={focusedInput?.messageInput}
                     onChange={(e) => {
                       setSendTextMessage(e.target.value);
+                      setMessage((prev: messageType[]) => {
+                        const updatedMessage = prev.map((msg) => {
+                          if (msg.id === chatBox.id) {
+                            return { ...msg, messageInput: e.target.value };
+                          }
+                          return msg;
+                        });
+                        return updatedMessage;
+                      });
                     }}
                     onKeyDown={({ key }) => {
                       if (key === "Enter") {
                         sendMessage({
                           chatId: chat.id,
-                          textMessage: sendTextMessage,
+                          textMessage: focusedInput?.messageInput || "",
                           userId: chat.userId,
                         });
+
                         const clearFocusedInput = message.map((msg) => {
-                          if (msg.chatId === chatBox.id) {
+                          if (msg.id === chatBox.id) {
                             return { ...msg, messageInput: "" };
                           }
                           return msg;
@@ -271,11 +287,11 @@ export const Chats = ({
                     onClick={() => {
                       sendMessage({
                         chatId: chat.id,
-                        textMessage: sendTextMessage,
+                        textMessage: focusedInput?.messageInput || "",
                         userId: chat.userId,
                       });
                       const clearFocusedInput = message.map((msg) => {
-                        if (msg.chatId === chatBox.id) {
+                        if (msg.id === chatBox.id) {
                           return { ...msg, messageInput: "" };
                         }
                         return msg;
