@@ -7,14 +7,13 @@ const getProfile = async () => {
 };
 
 export const useGetProfile = () => {
-  const mutation = useMutation({
-    mutationKey: ["profile"],
-    mutationFn: getProfile,
+  const query = useQuery({
+    queryKey: ["profile"],
+    queryFn: getProfile,
   });
-  const { data, mutate, ...useQueryData } = mutation;
+  const { data, ...useQueryData } = query;
   return {
     ...useQueryData,
-    profile: mutation.data,
-    resolveProfile: mutation.mutate,
+    profile: query.data,
   };
 };
