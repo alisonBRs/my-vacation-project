@@ -38,16 +38,10 @@ export const Chats = ({
 
   const { mutate: deleteChat } = useDeleteChat();
   const { mutate: successSendMessage } = useSendMessage();
-  const { data: allChats, isLoading: isLoadingChats } = useGetChats();
-
   const { profile, isLoading } = useGetProfile();
-
   const [chatListCopy, setChatListCopy] = useState<chatType[]>([]);
   const [sendTextMessage, setSendTextMessage] = useState("");
   const [message, setMessage] = useState<messageType[] | []>([]);
-  const [sendChatMessage, setSendChatMessage] = useState<sendChatMessageType[]>(
-    []
-  );
   const { mutate: addChat } = useAddChat();
   const handleCloseChat = (selectedChat: chatType) => {
     deleteChat({ chatId: selectedChat.id });
@@ -110,9 +104,6 @@ export const Chats = ({
     textMessage: string;
     userId: string;
   }) => {
-    const chatAlreadyExist = sendChatMessage.find(
-      (data) => data.chatId === chatId
-    );
     const chatAwaysOpen = profile?.data.chats.map((chat: chatType) => {
       if (chat.id === chatId) {
         return { ...chat, openned: true };
