@@ -17,42 +17,40 @@ export function useSendMessage() {
     mutationKey: ["message"],
     mutationFn: sendMessage,
     onMutate: ({ message, chatId }) => {
-      queryClient.setQueryData(["chats"], (prev: any) => {
-        console.log("prev", prev);
-        const updatedChatMessage = prev.map((chat: chatType) => {
-          if (chat.id === chatId) {
-            const messageCopy = chat?.message.length ? [...chat.message] : [];
-            messageCopy.push({ message, chatId });
-            return {
-              ...chat,
-              message: messageCopy,
-              id: `fakeId-${v4()}`,
-              userId: `fakeUserId-${v4()}`,
-            };
-          }
-          return chat;
-        });
-        return updatedChatMessage;
+      queryClient.setQueryData(["profile"], (prev: any) => {
+        const copyMessages = [...prev.message];
+
+        const fakeMessage = {
+          id: `fakeId-${v4()}`,
+          chatId,
+          message,
+        };
+
+        return {
+          ...prev,
+          message: [...copyMessages, fakeMessage],
+        };
       });
     },
+
     onSuccess: ({ data }) => {
-      queryClient.setQueryData(["chats"], (prev: any) => {
-        const updatedChat = prev.map((chat: chatType) => {
+      queryClient.setQueryData(["profile"], (prev: any) => {
+        const updatedChat = prev.message.map((message: chatType) => {
           if (
-            chat?.id?.startsWith("fakeId") ||
-            chat?.userId?.startsWith("fakeUserId")
+            message?.id?.startsWith("fakeId") ||
+            message?.userId?.startsWith("fakeUserId")
           ) {
             return {
-              ...chat,
+              ...message,
               id: data.result.id,
               userId: data.result.userId,
               openned: true,
             };
           }
-          return chat;
+          return message;
         });
 
-        return updatedChat;
+        return { ...prev, message: updatedChat };
       });
     },
     onError: () => {

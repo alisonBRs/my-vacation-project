@@ -37,7 +37,7 @@ export const Chats = ({
   }
 
   const { mutate: deleteChat } = useDeleteChat();
-  const { mutate: successSendMessage } = useSendMessage();
+  const { mutateAsync: successSendMessage } = useSendMessage();
   const { profile, isLoading } = useGetProfile();
   const [chatListCopy, setChatListCopy] = useState<chatType[]>([]);
   const [sendTextMessage, setSendTextMessage] = useState("");
@@ -95,7 +95,7 @@ export const Chats = ({
     }
   };
 
-  const sendMessage = ({
+  const sendMessage = async ({
     chatId,
     textMessage,
     userId,
@@ -104,16 +104,22 @@ export const Chats = ({
     textMessage: string;
     userId: string;
   }) => {
-    const chatAwaysOpen = profile?.data.chats.map((chat: chatType) => {
-      if (chat.id === chatId) {
-        return { ...chat, openned: true };
+    const chatAwaysOpen = profile?.chats.map(
+      (chat: chatType, index: number) => {
+        if (chat.id === chatId) {
+          return {
+            ...chat,
+            openned: true,
+            name: chat.name || `Chat #${index + 1}`,
+          };
+        }
+        return chat;
       }
-      return chat;
-    });
+    );
 
     setChatListCopy(chatAwaysOpen);
     if (textMessage.trim()) {
-      successSendMessage({
+      await successSendMessage({
         chatId,
         message: textMessage,
       });
@@ -134,7 +140,7 @@ export const Chats = ({
           ...chat,
           name: chat?.name || `Chat #${index + 1}`,
           openned: setToggleAllChats,
-          message: profile?.messages.filter(
+          message: profile?.message.filter(
             (msg: any) => msg.chatId === chat.id
           ),
         };
