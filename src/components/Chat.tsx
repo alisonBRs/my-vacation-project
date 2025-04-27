@@ -1,5 +1,5 @@
 "use client";
-import { Box, Flex, Input, Text } from "@chakra-ui/react";
+import { Box, Flex, Input, Text, useDisclosure } from "@chakra-ui/react";
 import { CloseButton } from "./ui/close-button";
 import { useEffect, useState } from "react";
 import { IoMdAddCircleOutline } from "react-icons/io";
@@ -11,6 +11,7 @@ import { useDeleteChat } from "@/app/hooks/useDeleteChat";
 import { useSendMessage } from "@/app/hooks/useSendMessage";
 import { io } from "socket.io-client";
 import { useGetProfile } from "@/app/hooks/useGetProfile";
+import { AddChatModal } from "./modal/AddChatModal";
 
 const socket = io("http://localhost:3080");
 export interface messageType {
@@ -43,14 +44,15 @@ export const Chats = ({
   const [sendTextMessage, setSendTextMessage] = useState("");
   const [message, setMessage] = useState<messageType[] | []>([]);
   const { mutate: addChat } = useAddChat();
+  const { open, onOpen, onClose } = useDisclosure();
   const handleCloseChat = (selectedChat: chatType) => {
     deleteChat({ chatId: selectedChat.id });
     setChatListCopy(
       chatListCopy.filter((chat: chatType) => chat.id !== selectedChat.id)
     );
   };
-  const handleAddChat = () => {
-    addChat();
+  const handleAddChat = (email: string) => {
+    addChat(email);
     const id = v4();
 
     setMessage([
@@ -308,8 +310,13 @@ export const Chats = ({
           })}
         </Box>
       ))}
+      <AddChatModal
+        isOpen={open}
+        onClose={onClose}
+        handleAddChat={handleAddChat}
+      />
       <Box
-        onClick={handleAddChat}
+        onClick={onOpen}
         cursor={"pointer"}
         rounded={"6px"}
         p={0.5}

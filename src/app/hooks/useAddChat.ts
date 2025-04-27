@@ -2,8 +2,8 @@ import { useMutation, useQueryClient } from "react-query";
 import { fetchAxios } from "../setup axios/axios";
 import { v4 } from "uuid";
 
-async function addChat() {
-  const data = await fetchAxios.post("/criaChat");
+async function addChat(email: String) {
+  const data = await fetchAxios.post("/criaChat", { email });
 
   return data;
 }
@@ -12,7 +12,7 @@ export function useAddChat() {
   const queryClient = useQueryClient();
   const mutate = useMutation({
     mutationKey: ["create-chat"],
-    mutationFn: addChat,
+    mutationFn: (email: String) => addChat(email),
     onMutate: () => {
       queryClient.setQueryData(["profile"], (prev: any) => {
         const newChat = {
