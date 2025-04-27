@@ -6,7 +6,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { QueryClient, QueryClientProvider } from "react-query";
 import ReactDOM from "react-dom";
-import { BrowserRouter } from "react-router-dom";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,14 +30,12 @@ export default function RootLayout({
         style={{ background: "white", color: "black" }}
         className={`${geistSans.variable} ${geistMono.variable}`}
       >
-        <BrowserRouter>
-          <QueryClientProvider client={queryClient}>
-            <Provider>
-              {children}
-              <ToastContainer />
-            </Provider>
-          </QueryClientProvider>
-        </BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <Provider>
+            {children}
+            <ToastContainer />
+          </Provider>
+        </QueryClientProvider>
       </body>
     </html>
   );
