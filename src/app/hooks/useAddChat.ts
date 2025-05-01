@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "react-query";
 import { fetchAxios } from "../setup axios/axios";
 import { v4 } from "uuid";
+import { toast } from "react-toastify";
 
 async function addChat(email: String) {
   const data = await fetchAxios.post("/criaChat", { email });
@@ -42,8 +43,13 @@ export function useAddChat() {
         return { ...prev, chats: updatedChat };
       });
     },
-    onError: () => {
-      queryClient.invalidateQueries(["chats"]);
+    onError: ({ response }) => {
+      queryClient.setQueryData(["profile"], (prev: any) => ({
+        ...prev,
+        chats: prev.chats.filter((chat: any) => !chat.id.startsWith("fakeId")),
+      }));
+
+      toast.error(response.data.message);
     },
   });
 
