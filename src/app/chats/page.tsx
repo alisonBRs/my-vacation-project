@@ -19,7 +19,6 @@ export default function Principal() {
 
   useEffect(() => {
     if (isError && error) {
-      console.log("error", error);
       //@ts-ignore
       const { jwtExpired, unauthorized } = error?.response?.data;
 
