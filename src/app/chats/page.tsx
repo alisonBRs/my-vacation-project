@@ -21,9 +21,9 @@ export default function Principal() {
     if (isError && error) {
       console.log("error", error);
       //@ts-ignore
-      const { jwtExpired } = error?.response?.data;
+      const { jwtExpired, unauthorized } = error?.response?.data;
 
-      if (jwtExpired) {
+      if (jwtExpired || unauthorized) {
         redirect("/");
       }
     }
