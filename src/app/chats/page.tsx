@@ -2,7 +2,9 @@
 import { Chats } from "@/components/Chat";
 import { Box, Flex, Heading, Text } from "@chakra-ui/react";
 import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { redirect } from "next/navigation";
+import { useGetProfile } from "../hooks/useGetProfile";
 
 export default function Principal() {
   const storageChats = localStorage?.getItem("setToggleChats");
@@ -13,6 +15,19 @@ export default function Principal() {
         : true
       : false
   );
+  const { isError, error } = useGetProfile();
+
+  useEffect(() => {
+    if (isError && error) {
+      console.log("error", error);
+      //@ts-ignore
+      const { jwtExpired } = error?.response?.data;
+
+      if (jwtExpired) {
+        redirect("/");
+      }
+    }
+  }, [isError, error]);
 
   return (
     <Flex flexDirection={"column"} alignItems={"center"} h={"100vh"}>

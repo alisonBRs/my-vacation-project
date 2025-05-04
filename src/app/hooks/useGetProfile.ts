@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "react-query";
+import { useQuery } from "react-query";
 import { fetchAxios } from "../setup axios/axios";
 
 const getProfile = async () => {
@@ -10,6 +10,7 @@ export const useGetProfile = () => {
   const query = useQuery({
     queryKey: ["profile"],
     queryFn: getProfile,
+    retry: false,
   });
   const { data, ...useQueryData } = query;
   return {
