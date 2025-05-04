@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "react-query";
 import { fetchAxios } from "../setup axios/axios";
 import { v4 } from "uuid";
-import { chatType } from "@/components/Chat";
+import { chatType } from "@/components/Chats";
 
 function deleteChat({ chatId }: { chatId: string }) {
   const data = fetchAxios.delete(`/deleteChat/${chatId}`);

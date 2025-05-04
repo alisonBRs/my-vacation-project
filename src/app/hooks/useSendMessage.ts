@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "react-query";
 import { fetchAxios } from "../setup axios/axios";
 import { v4 } from "uuid";
-import { chatType, messageType } from "@/components/Chat";
+import { chatType, messageType } from "@/components/Chats";
 
 function sendMessage({ chatId, message }: { chatId: string; message: string }) {
   const data = fetchAxios.post("/addMensagem", {

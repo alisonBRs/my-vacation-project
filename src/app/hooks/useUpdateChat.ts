@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "react-query";
 import { fetchAxios } from "../setup axios/axios";
-import { chatType } from "@/components/Chat";
+import { chatType } from "@/components/Chats";
 import { v4 } from "uuid";
 
 interface dataType {

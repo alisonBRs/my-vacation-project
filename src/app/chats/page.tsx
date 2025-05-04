@@ -1,5 +1,5 @@
 "use client";
-import { Chats } from "@/components/Chat";
+import { Chats } from "@/components/Chats";
 import { Box, Flex, Heading, Text } from "@chakra-ui/react";
 import { Switch } from "@/components/ui/switch";
 import { useEffect, useState } from "react";
