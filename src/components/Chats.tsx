@@ -137,16 +137,17 @@ export const Chats = ({
 
   useEffect(() => {
     if (!isLoading) {
-      const formatedChats = profile?.chats?.map((chat: any, index: number) => {
-        return {
-          ...chat,
-          name: chat?.name || `Chat #${index + 1}`,
-          openned: setToggleAllChats,
-          message: profile?.message.filter(
-            (msg: any) => msg.chatId === chat.id
-          ),
-        };
-      });
+      const formatedChats =
+        profile?.chats?.map((chat: any, index: number) => {
+          return {
+            ...chat,
+            name: chat?.name || `Chat #${index + 1}`,
+            openned: setToggleAllChats,
+            message: profile?.message.filter(
+              (msg: any) => msg.chatId === chat.id
+            ),
+          };
+        }) || [];
 
       const formatedChatMessage = profile?.chats?.map((msg: any) => {
         return {
@@ -156,6 +157,33 @@ export const Chats = ({
               ?.messageInput || "",
         };
       });
+
+      let copyFormatedChats = [...formatedChats];
+
+      const teste = copyFormatedChats.map((chatMsg: any) => {
+        const receiverMessages = profile.relationChats
+          .find(
+            (relationChat: any) => relationChat.receiverChatId === chatMsg.id
+          )
+          ?.chat?.message?.map((cu: any) => {
+            return { ...cu, received: true };
+          });
+
+        if (receiverMessages?.receiverChatId === chatMsg?.id) {
+          return {
+            ...chatMsg,
+            message: [...chatMsg.message, ...receiverMessages?.chat?.message],
+          };
+        }
+        return chatMsg;
+      });
+
+      console.log(
+        // " profile.relationChats",
+        // profile.relationChats,
+        // "formatedChatMessage",
+        teste
+      );
 
       setChatListCopy(formatedChats);
       setMessage(formatedChatMessage);
@@ -232,16 +260,19 @@ export const Chats = ({
                   gap={2}
                 >
                   {chatBox?.message?.length
-                    ? chatBox?.message?.map((data, index) => (
-                        <Text
-                          key={`message-${data.chatId}-${index}`}
-                          bg={"green.300"}
-                          p={1}
-                          rounded={"6px"}
-                        >
-                          {data.message}
-                        </Text>
-                      ))
+                    ? chatBox?.message?.map((data, index) => {
+                        if (data)
+                          return (
+                            <Text
+                              key={`message-${data.chatId}-${index}`}
+                              bg={"green.300"}
+                              p={1}
+                              rounded={"6px"}
+                            >
+                              {data.message}
+                            </Text>
+                          );
+                      })
                     : null}
                 </Flex>
                 <Flex gap={"0.5rem"}>
