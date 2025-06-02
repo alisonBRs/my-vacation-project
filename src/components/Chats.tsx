@@ -19,12 +19,15 @@ export interface messageType {
   chatId?: string;
   message?: string;
   messageInput?: string;
+  isReceiver?: boolean;
+  userId?: string;
 }
 export interface chatType {
   name: string;
   id: string;
   openned: boolean;
   userId: string;
+  receiverUserId: string;
   message: messageType[];
 }
 export const Chats = ({
@@ -45,6 +48,7 @@ export const Chats = ({
   const [message, setMessage] = useState<messageType[] | []>([]);
   const { mutate: addChat } = useAddChat();
   const { open, onOpen, onClose } = useDisclosure();
+  const [newMessage, setNewMessage] = useState<messageType>({});
   const handleCloseChat = (selectedChat: chatType) => {
     deleteChat({ chatId: selectedChat.id });
     setChatListCopy(
@@ -139,13 +143,27 @@ export const Chats = ({
     if (!isLoading) {
       const formatedChats =
         profile?.chats?.map((chat: any, index: number) => {
+          const receiverChatMessages = profile.relationChats.find(
+            (receiverChat: any) => receiverChat.receiverChatId === chat.id
+          );
+
+          const userMessages = profile?.message.filter(
+            (msg: any) => msg.chatId === chat.id
+          );
+
+          const receiverMessages =
+            receiverChatMessages?.chat?.message.map((receiverMsg: any) => ({
+              ...receiverMsg,
+              isReceiver: true,
+            })) || [];
+
+          const messages = [...userMessages, ...receiverMessages];
+
           return {
             ...chat,
             name: chat?.name || `Chat #${index + 1}`,
             openned: setToggleAllChats,
-            message: profile?.message.filter(
-              (msg: any) => msg.chatId === chat.id
-            ),
+            message: messages,
           };
         }) || [];
 
@@ -158,33 +176,6 @@ export const Chats = ({
         };
       });
 
-      let copyFormatedChats = [...formatedChats];
-
-      const teste = copyFormatedChats.map((chatMsg: any) => {
-        const receiverMessages = profile.relationChats
-          .find(
-            (relationChat: any) => relationChat.receiverChatId === chatMsg.id
-          )
-          ?.chat?.message?.map((cu: any) => {
-            return { ...cu, received: true };
-          });
-
-        if (receiverMessages?.receiverChatId === chatMsg?.id) {
-          return {
-            ...chatMsg,
-            message: [...chatMsg.message, ...receiverMessages?.chat?.message],
-          };
-        }
-        return chatMsg;
-      });
-
-      console.log(
-        // " profile.relationChats",
-        // profile.relationChats,
-        // "formatedChatMessage",
-        teste
-      );
-
       setChatListCopy(formatedChats);
       setMessage(formatedChatMessage);
     }
@@ -193,12 +184,27 @@ export const Chats = ({
   useEffect(() => {
     socket.on("receiveMessage", (message) => {
       console.log("Nova mensagem recebida:", message);
+      setNewMessage(message);
     });
-
-    return () => {
-      socket.disconnect();
-    };
   }, []);
+
+  useEffect(() => {
+    if (newMessage) {
+      const newMessageFromReceiver = chatListCopy.map((chat) => {
+        if (chat.receiverUserId === newMessage.userId) {
+          return {
+            ...chat,
+            message: [...chat.message, { ...newMessage, isReceiver: true }],
+          };
+        }
+        return chat;
+      });
+
+      setChatListCopy(newMessageFromReceiver);
+    }
+  }, [newMessage]);
+
+  console.log("chatListCopy", chatListCopy);
 
   return (
     <Flex
@@ -250,31 +256,59 @@ export const Chats = ({
                   chatBox.openned && chatBox.id === chat.id ? "flex" : "none"
                 }
               >
-                <Flex
-                  h={"250px"}
-                  overflowY={"auto"}
-                  alignItems={"flex-end"}
-                  justifyContent={"flex-end"}
-                  p={4}
-                  flexDir={"column"}
-                  gap={2}
-                >
-                  {chatBox?.message?.length
-                    ? chatBox?.message?.map((data, index) => {
-                        if (data)
-                          return (
-                            <Text
-                              key={`message-${data.chatId}-${index}`}
-                              bg={"green.300"}
-                              p={1}
-                              rounded={"6px"}
-                            >
-                              {data.message}
-                            </Text>
-                          );
-                      })
-                    : null}
-                </Flex>
+                <Box h={"250px"} overflowY={"auto"} p={4} gap={2}>
+                  <Flex
+                    key={`chat-message-${
+                      chatBox?.message?.length
+                        ? chatBox.message[chatBox.message.length - 1]
+                        : 1
+                    }`}
+                    flexDir={"column"}
+                    gap={2}
+                  >
+                    {chatBox?.message?.length
+                      ? chatBox?.message?.map((data, index) => {
+                          if (data && !data.isReceiver) {
+                            return (
+                              <Flex
+                                w={"full"}
+                                justifyContent={"flex-end"}
+                                key={data.id}
+                              >
+                                <Text
+                                  key={`message-${data.chatId}-${index}`}
+                                  bg={"green.300"}
+                                  p={1}
+                                  rounded={"6px 6px 0 6px"}
+                                >
+                                  {data.message}
+                                </Text>
+                              </Flex>
+                            );
+                          }
+
+                          if (data && data.isReceiver) {
+                            return (
+                              <Flex
+                                w={"full"}
+                                justifyContent={"flex-start"}
+                                key={data.id}
+                              >
+                                <Text
+                                  key={`message-${data.chatId}-${index}`}
+                                  bg={"blue.200"}
+                                  p={1}
+                                  rounded={"6px 6px 6px 0"}
+                                >
+                                  {data.message}
+                                </Text>
+                              </Flex>
+                            );
+                          }
+                        })
+                      : null}
+                  </Flex>
+                </Box>
                 <Flex gap={"0.5rem"}>
                   <Input
                     placeholder="Digite aqui..."
