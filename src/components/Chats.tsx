@@ -52,7 +52,7 @@ export const Chats = ({
   const handleCloseChat = (selectedChat: chatType) => {
     deleteChat({ chatId: selectedChat.id });
     setChatListCopy(
-      chatListCopy.filter((chat: chatType) => chat.id !== selectedChat.id)
+      chatListCopy.filter((chat: chatType) => chat.id !== selectedChat.id),
     );
   };
   const handleAddChat = (email: string) => {
@@ -70,11 +70,11 @@ export const Chats = ({
 
   const handleOpenChat = (data: chatType) => {
     const selectedChat = chatListCopy.find(
-      (chat: chatType) => chat.id === data.id
+      (chat: chatType) => chat.id === data.id,
     );
 
     const chatAlreadyOpen = chatListCopy.find(
-      (chat: chatType) => chat.id === data.id && chat.openned
+      (chat: chatType) => chat.id === data.id && chat.openned,
     );
 
     if (chatAlreadyOpen) {
@@ -120,10 +120,10 @@ export const Chats = ({
           };
         }
         return chat;
-      }
+      },
     );
 
-    setChatListCopy(chatAwaysOpen);
+    //setChatListCopy(chatAwaysOpen);
     if (textMessage.trim()) {
       await successSendMessage({
         chatId,
@@ -144,11 +144,11 @@ export const Chats = ({
       const formatedChats =
         profile?.chats?.map((chat: any, index: number) => {
           const receiverChatMessages = profile.relationChats.find(
-            (receiverChat: any) => receiverChat.receiverChatId === chat.id
+            (receiverChat: any) => receiverChat.receiverChatId === chat.id,
           );
 
           const userMessages = profile?.message.filter(
-            (msg: any) => msg.chatId === chat.id
+            (msg: any) => msg.chatId === chat.id,
           );
 
           const receiverMessages =
@@ -176,6 +176,16 @@ export const Chats = ({
         };
       });
 
+      formatedChats.forEach((data: any) => {
+        return {
+          ...data,
+          message: data.message.sort(
+            (a: any, b: any) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+          ),
+        };
+      });
+
       setChatListCopy(formatedChats);
       setMessage(formatedChatMessage);
     }
@@ -200,11 +210,19 @@ export const Chats = ({
         return chat;
       });
 
+      newMessageFromReceiver.forEach((data: any) => {
+        return {
+          ...data,
+          message: data.message.sort(
+            (a: any, b: any) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getDate(),
+          ),
+        };
+      });
+
       setChatListCopy(newMessageFromReceiver);
     }
   }, [newMessage]);
-
-  console.log("chatListCopy", chatListCopy);
 
   return (
     <Flex

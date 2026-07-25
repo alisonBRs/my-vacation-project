@@ -24,6 +24,7 @@ export function useSendMessage() {
           id: `fakeId-${v4()}`,
           chatId,
           message,
+          createdAt: new Date().getTime(),
         };
 
         return {
