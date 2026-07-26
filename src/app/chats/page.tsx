@@ -1,6 +1,6 @@
 "use client";
 import { Chats } from "@/components/Chats";
-import { Box, Flex, Heading, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Text } from "@chakra-ui/react";
 import { Switch } from "@/components/ui/switch";
 import { useEffect, useState } from "react";
 import { redirect } from "next/navigation";
@@ -16,6 +16,11 @@ export default function Principal() {
       : false,
   );
   const { isError, error } = useGetProfile();
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    window.location.href = "http://localhost:3000";
+  };
 
   useEffect(() => {
     if (isError && error) {
@@ -38,21 +43,29 @@ export default function Principal() {
         justifyContent={"space-between"}
         w={"full"}
         border={"1px solid red"}
+        paddingX={4}
+        paddingY={2}
       >
         <Heading>Teste page</Heading>
-        <Flex gap={2} mr={2}>
-          <Text>Abrir/Fechar todos os chats: </Text>
-          <Switch
-            colorPalette={"blue"}
-            checked={toggleAllChats}
-            onCheckedChange={() => {
-              setToggleAllChats(!toggleAllChats);
-              localStorage.setItem(
-                "setToggleChats",
-                storageChats === "true" ? "false" : "true",
-              );
-            }}
-          />
+        <Flex gap={4}>
+          <Flex gap={2} mr={2} alignItems={"center"}>
+            <Text>Abrir/Fechar todos os chats: </Text>
+            <Switch
+              colorPalette={"blue"}
+              checked={toggleAllChats}
+              onCheckedChange={() => {
+                setToggleAllChats(!toggleAllChats);
+                localStorage.setItem(
+                  "setToggleChats",
+                  storageChats === "true" ? "false" : "true",
+                );
+              }}
+            />
+          </Flex>
+
+          <Button padding={1} onClick={logout}>
+            Logout
+          </Button>
         </Flex>
       </Flex>
       <Flex
