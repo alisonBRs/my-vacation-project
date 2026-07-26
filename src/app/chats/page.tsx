@@ -13,14 +13,18 @@ export default function Principal() {
       ? !storageChats
         ? false
         : true
-      : false
+      : false,
   );
   const { isError, error } = useGetProfile();
 
   useEffect(() => {
     if (isError && error) {
       //@ts-ignore
-      const { jwtExpired, unauthorized } = error?.response?.data;
+
+      const jwtExpired = error?.response?.data?.jwtExpired;
+      //@ts-ignore
+
+      const unauthorized = error?.response?.data?.unauthorized;
 
       if (jwtExpired || unauthorized) {
         redirect("/");
@@ -45,7 +49,7 @@ export default function Principal() {
               setToggleAllChats(!toggleAllChats);
               localStorage.setItem(
                 "setToggleChats",
-                storageChats === "true" ? "false" : "true"
+                storageChats === "true" ? "false" : "true",
               );
             }}
           />
